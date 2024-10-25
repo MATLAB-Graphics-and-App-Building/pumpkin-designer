@@ -1,7 +1,8 @@
 # Pumpkin Designer
 
 [![View Pumpkin Designer on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/####-pumpkin-designer)
-[![Open in MATLAB&reg; Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=MATLAB-Graphics-and-App-Building/pumpkin-designer/pumpkindesigner) (For best results, open in MATLAB Online using a computer or laptop)
+
+[![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=MATLAB-Graphics-and-App-Building/pumpkin-designer&file=pumpkindesigner.mlapp&focus=true) (For best results, open in MATLAB Online using a computer or laptop)
 
 A simple app for interactively designing pumpkins.  Share your pumpkin
 as an image, or as a script your friends can run in MATLAB&reg;.
