@@ -26,9 +26,9 @@ Use the tabs on the left to modify your pumpkin:
 To edit pumpkindesigner with appdesigner, you need to set your current directory
 to where you downloaded the pumpkindesigner code.  Then add that directory to your path.
 
-`>> cd pumpkin-designer`
-`>> addpath(pwd)`
-`>> appdesigner pumpkindesigner`
+    >> cd pumpkin-designer
+    >> addpath(pwd)
+    >> appdesigner pumpkindesigner
 
 ## MathWorks&reg; Products (https://www.mathworks.com)
 
