@@ -36,7 +36,7 @@ classdef SimpleScriptGen < handle
             arguments
                 headercomment = []
             end
-            SSG.geomscript = headercomment;
+            SSG.addcomment(headercomment,Header=true);
         end
 
         function nextsection(SSG)
@@ -49,10 +49,32 @@ classdef SimpleScriptGen < handle
               otherwise
                 error('no next mode');
             end
+            % Each section separated by a blank line.
+            SSG.addlines("");
         end
 
-        function addlines(SSG, lines)
+        function addcomment(SSG, comment, opts)
+            arguments
+                SSG
+                comment (:,1) string
+                opts.Header (1,1) logical = false
+            end
+
+            if opts.Header
+                cc = "%% ";
+            else
+                cc = "% ";
+            end
+            SSG.addlines(cc + comment, Comment=true);
+        end
+        
+        function addlines(SSG, lines, opts)
         % Add various lines of code to current script
+            arguments
+                SSG
+                lines (:,1) string
+                opts.Comment (1,1) logical = false
+            end
             switch SSG.mode
               case "geom"
                 SSG.geomscript = [ SSG.geomscript
@@ -61,7 +83,12 @@ classdef SimpleScriptGen < handle
                 SSG.gfxscript = [ SSG.gfxscript
                                    lines ];                
               case "color"
-                error("Don't add lines to color section, Use colormap method instead.");
+                if lines == "" || opts.Comment
+                    SSG.gfxscript = [ SSG.gfxscript
+                                      lines ];                
+                else
+                    error("Don't add lines to color section, Use colormap method instead.");
+                end
               otherwise
                 error('no next mode');
             end

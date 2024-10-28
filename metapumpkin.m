@@ -56,7 +56,7 @@ function [script_or_struct,MAP] = metapumpkin(opts)
         opts.StemStyle = 'simple';
     end
 
-    SG = SimpleScriptGen("%% Pumpkin");
+    SG = SimpleScriptGen("Pumpkin");
     SG.constantfolding = opts.ConstantFolding;
 
     SG.constant("pr", opts.Radius, "Radius");
@@ -82,20 +82,22 @@ function [script_or_struct,MAP] = metapumpkin(opts)
     SG.constant("sd", opts.StemDims, "Stem Dimensions (length of curve)");
     SG.constant("sc", rgb2hex(opts.StemColor), "Stem Color");
 
-    
-    SG.addlines([ "%% Generate initial sphere coordinates."
-                  "[ Xs, Ys, Zs ] = sphere(" + SG.ref("res") + "-1);"
-                ]);
+    if ~SG.constantfolding
+        SG.addlines("");
+    end
+
+    SG.addcomment("Generate initial sphere coordinates.", Header=true);
+    SG.addlines("[ Xs, Ys, Zs ] = sphere(" + SG.ref("res") + "-1);");
 
     if opts.BumpDepth > 0 && opts.NumBumps > 0
         useRxy = true;
         if opts.SecondaryBumpDepth == 0
-            SG.addlines(["%% This specifies the pumpkin ridges."
-                         "Rxy = (0-(1-mod(linspace(0," + SG.ref("nb") + " *2," + SG.ref('res') + ...
-                        " ),2)).^2)*" + SG.ref('bd') + ";"]);
+            SG.addcomment("This specifies the pumpkin ridges.");
+            SG.addlines("Rxy = (0-(1-mod(linspace(0," + SG.ref("nb") + " *2," + SG.ref('res') + ...
+                        " ),2)).^2)*" + SG.ref('bd') + ";");
         else
-            SG.addlines(["%% This specifies the pumpkin ridges and secondary ridges."
-                         "Rxy = (0-(1-mod(linspace(0," + SG.ref('nb') + "*2," + SG.ref('res') + ...
+            SG.addcomment("This specifies the pumpkin ridges and secondary ridges.");
+            SG.addlines(["Rxy = (0-(1-mod(linspace(0," + SG.ref('nb') + "*2," + SG.ref('res') + ...
                          "),2)).^2)*" + SG.ref('bd') + " + ..."
                          "      (0-(1-mod(linspace(0," + SG.ref('nb') + "*4," + SG.ref('res') + ...
                          "),2)).^2)*" + SG.ref('sbd') + ";"]);
@@ -104,9 +106,10 @@ function [script_or_struct,MAP] = metapumpkin(opts)
         useRxy = false;        
     end
 
-    SG.addlines(["%% This adds a dimple in the top/bottom of the pumpkin."
-                 "Rz  = (0-linspace(1,-1," + SG.ref('res') + ")'.^4)*" + SG.ref('dd') + ";"
-                 "%% Compute the mesh"]);
+    SG.addcomment("This adds a dimple in the top/bottom of the pumpkin.");
+    SG.addlines("Rz  = (0-linspace(1,-1," + SG.ref('res') + ")'.^4)*" + SG.ref('dd') + ";");
+    
+    SG.addcomment("Compute the mesh");
     if useRxy
         SG.addlines([ "X = (" + SG.ref('pr') + "+Rxy).*Xs;"
                       "Y = (" + SG.ref('pr') + "+Rxy).*Ys;"
@@ -127,22 +130,20 @@ function [script_or_struct,MAP] = metapumpkin(opts)
     end
 
     if opts.SpeckleSize > 0
-        SG.addlines([ "%% Compute Speckles"
-                      "Cm = randn(" + SG.ref('res') + ");"
+        SG.addcomment("Compute Speckles");
+        SG.addlines([ "Cm = randn(" + SG.ref('res') + ");"
                       "Cm(Cm<.97&Cm>-.97) = 0;"
                       "C = max(min(C + Cm*" + SG.ref('ss') + ", max(C,[],'all')), min(C,[],'all'));"
                     ]);
     end
 
+    SG.addcomment("Compute the stem.", Header=true)
     switch lower(opts.StemStyle)
       case 'complex'
         % Stem part
-        SG.addlines([ "%% Wider @ bottom than top of stem."
-                      "rf = [ 1.5 1 .7 .7 .7 .7 .7 .7 ];"
-                      "%% This specifies the star shape."
+        SG.addlines([ "rf = [ 1.5 1 .7 .7 .7 .7 .7 .7 ];"
                       "r = [ repmat(" + SG.ref('sr') + "',floor(" + SG.ref('nb') + "),1); " ...
                       + SG.ref('sr',1) + "];"
-                      "%% Compute the mesh as 1/4 of a torus."
                       "[theta, phi] = meshgrid(linspace(0,pi/2,numel(rf))," + ...
                       "linspace(0,2*pi,numel(r)));"
                       "Xst = (" + SG.ref('sd',1) + "-cos(phi).*r.*rf).*cos(theta)-" + SG.ref('sd',1) + ";"
@@ -151,8 +152,7 @@ function [script_or_struct,MAP] = metapumpkin(opts)
                       "Yst = -sin(phi).*r.*rf;"
                     ]);
       case 'simple'
-        SG.addlines([ "%% Simple stem re-uses sphere coordinates."
-                      "Xst = Xs*" + SG.ref('sr',1) + ";"
+        SG.addlines([ "Xst = Xs*" + SG.ref('sr',1) + ";"
                       "Yst = Ys*" + SG.ref('sr',2) + ";"
                       "Zst = Zs*" + SG.ref('sd',2) + "+Z(end,1);" ]);
       otherwise
@@ -161,11 +161,9 @@ function [script_or_struct,MAP] = metapumpkin(opts)
     
     % Plot just the pumpkin part
     SG.nextsection;
-    
-    SG.addlines([ "%% Plot the Pumpkin"
-                  "surf(X,Y,Z,C,'FaceColor','interp','EdgeColor','none','FaceLighting','g');"]);
 
-    SG.addlines([ "%% Plot the Stem"
+    SG.addcomment("Plot the Pumpkin & Stem");
+    SG.addlines([ "surf(X,Y,Z,C,'FaceColor','interp','EdgeColor','none','FaceLighting','g');"
                   "surface(Xst,Yst,Zst,[],'FaceColor'," + SG.ref('sc') + ",'EdgeColor','none','FaceLighting','f');"]);
 
     SG.addlines([ "daspect([1 1 1]);"
@@ -174,7 +172,8 @@ function [script_or_struct,MAP] = metapumpkin(opts)
 
     % Setup colors
     SG.nextsection;
-    
+
+    SG.addcomment("Pumpkin Colormap",Header=true);
     if opts.SpeckleSize == 0
         SG.colormap(opts.Colormap, 256);
     else
