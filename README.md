@@ -49,4 +49,4 @@ Pumpkin Designer includes the following widgets and utilities:
 
 The license is available in the License.txt file in this GitHub repository.
 
-Copyright 2024 The MathWorks&reg;, Inc.
+Copyright 2024 The MathWorks, Inc.
