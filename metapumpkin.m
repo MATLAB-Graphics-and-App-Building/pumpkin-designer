@@ -56,8 +56,7 @@ function [script_or_struct,MAP] = metapumpkin(opts)
         opts.StemStyle = 'simple';
     end
 
-    SG = SimpleScriptGen("Pumpkin");
-    SG.constantfolding = opts.ConstantFolding;
+    SG = SimpleScriptGen("Pumpkin", 'constantfolding', opts.ConstantFolding);
 
     SG.constant("pr", opts.Radius, "Radius");
     SG.constant("ph", opts.Height, "Height")
@@ -84,9 +83,9 @@ function [script_or_struct,MAP] = metapumpkin(opts)
 
     if ~SG.constantfolding
         SG.addlines("");
+        SG.addcomment("Generate initial sphere coordinates.", Header=true);
     end
 
-    SG.addcomment("Generate initial sphere coordinates.", Header=true);
     SG.addlines("[ Xs, Ys, Zs ] = sphere(" + SG.ref("res") + "-1);");
 
     if opts.BumpDepth > 0 && opts.NumBumps > 0
@@ -137,7 +136,8 @@ function [script_or_struct,MAP] = metapumpkin(opts)
                     ]);
     end
 
-    SG.addcomment("Compute the stem.", Header=true)
+    SG.addlines("");
+    SG.addcomment("Compute the stem", Header=true)
     switch lower(opts.StemStyle)
       case 'complex'
         % Stem part
@@ -162,7 +162,7 @@ function [script_or_struct,MAP] = metapumpkin(opts)
     % Plot just the pumpkin part
     SG.nextsection;
 
-    SG.addcomment("Plot the Pumpkin & Stem");
+    SG.addcomment("Plot the Pumpkin & Stem", Header=true);
     SG.addlines([ "surf(X,Y,Z,C,'FaceColor','interp','EdgeColor','none','FaceLighting','g');"
                   "surface(Xst,Yst,Zst,[],'FaceColor'," + SG.ref('sc') + ",'EdgeColor','none','FaceLighting','f');"]);
 
