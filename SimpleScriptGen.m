@@ -17,7 +17,7 @@ classdef SimpleScriptGen < handle
 
 % Copyright 2024 The MathWorks, Inc.
 
-    properties
+    properties (SetAccess=private)
         % Script Part
         geomscript (:,1) string = []
         gfxscript (:,1) string = []
@@ -32,10 +32,12 @@ classdef SimpleScriptGen < handle
     end
 
     methods
-        function SSG = SimpleScriptGen(headercomment)
+        function SSG = SimpleScriptGen(headercomment, opts)
             arguments
                 headercomment = []
+                opts.constantfolding = false
             end
+            SSG.constantfolding = opts.constantfolding;
             SSG.addcomment(headercomment,Header=true);
         end
 
@@ -101,11 +103,11 @@ classdef SimpleScriptGen < handle
             if SSG.constantfolding
             else
                 if nargin >= 4
-                    cstr = " %" + comment;
+                    cc = " %" + comment;
                 else
-                    cstr = "";
+                    cc = "";
                 end
-                SSG.addlines(varname + "=" + SSG.toStr(value) + ";" + cstr);
+                SSG.addlines(varname + "=" + SSG.toStr(value) + ";" + cc);
             end
             CS.name = string(varname);
             CS.value = value;
